@@ -101,8 +101,10 @@ public class SimpleAliasRegistry implements AliasRegistry {
 	public boolean hasAlias(String name, String alias) {
 		for (Map.Entry<String, String> entry : this.aliasMap.entrySet()) {
 			String registeredName = entry.getValue();
+			// 如果name相等
 			if (registeredName.equals(name)) {
 				String registeredAlias = entry.getKey();
+				// alias相等  或者  存在找到的这个alias与参数alias 的
 				if (registeredAlias.equals(alias) || hasAlias(registeredAlias, alias)) {
 					return true;
 				}
@@ -200,6 +202,7 @@ public class SimpleAliasRegistry implements AliasRegistry {
 	 * @see #hasAlias
 	 */
 	protected void checkForAliasCircle(String name, String alias) {
+		// 检查是否存在name->alias的映射
 		if (hasAlias(alias, name)) {
 			throw new IllegalStateException("Cannot register alias '" + alias +
 					"' for name '" + name + "': Circular reference - '" +

@@ -561,6 +561,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 				logger.trace("Retrieved dependent beans for bean '" + beanName + "': " + dependencies);
 			}
 			for (String dependentBeanName : dependencies) {
+				// 递归摧毁单例对象
 				destroySingleton(dependentBeanName);
 			}
 		}

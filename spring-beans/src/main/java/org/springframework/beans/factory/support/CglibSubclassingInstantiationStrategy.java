@@ -117,6 +117,7 @@ public class CglibSubclassingInstantiationStrategy extends SimpleInstantiationSt
 			Class<?> subclass = createEnhancedSubclass(this.beanDefinition);
 			Object instance;
 			if (ctor == null) {
+				// 初始化 cglib 创建的class对象
 				instance = BeanUtils.instantiateClass(subclass);
 			}
 			else {
@@ -150,6 +151,7 @@ public class CglibSubclassingInstantiationStrategy extends SimpleInstantiationSt
 				ClassLoader cl = ((ConfigurableBeanFactory) this.owner).getBeanClassLoader();
 				enhancer.setStrategy(new ClassLoaderAwareGeneratorStrategy(cl));
 			}
+			// cglib CallbackFilter
 			enhancer.setCallbackFilter(new MethodOverrideCallbackFilter(beanDefinition));
 			enhancer.setCallbackTypes(CALLBACK_TYPES);
 			return enhancer.createClass();
@@ -245,6 +247,11 @@ public class CglibSubclassingInstantiationStrategy extends SimpleInstantiationSt
 			super(beanDefinition);
 		}
 
+		/**
+		 * 重写accept 方法
+		 * @param method
+		 * @return
+		 */
 		@Override
 		public int accept(Method method) {
 			MethodOverride methodOverride = getBeanDefinition().getMethodOverrides().getOverride(method);
@@ -279,6 +286,15 @@ public class CglibSubclassingInstantiationStrategy extends SimpleInstantiationSt
 			this.owner = owner;
 		}
 
+		/**
+		 * 重写intercept方法
+		 * @param obj
+		 * @param method
+		 * @param args
+		 * @param mp
+		 * @return
+		 * @throws Throwable
+		 */
 		@Override
 		public Object intercept(Object obj, Method method, Object[] args, MethodProxy mp) throws Throwable {
 			// Cast is safe, as CallbackFilter filters are used selectively.

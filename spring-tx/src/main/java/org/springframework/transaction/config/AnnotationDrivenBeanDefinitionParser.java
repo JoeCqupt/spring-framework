@@ -70,6 +70,7 @@ class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParser {
 			}
 		}
 		else {
+			// 默认配置
 			// mode="proxy"
 			AopAutoProxyConfigurer.configureAutoProxyCreator(element, parserContext);
 		}
@@ -108,6 +109,7 @@ class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParser {
 	private void registerTransactionalEventListenerFactory(ParserContext parserContext) {
 		RootBeanDefinition def = new RootBeanDefinition();
 		def.setBeanClass(TransactionalEventListenerFactory.class);
+		// 注册一个  internalTransactionalEventListenerFactory  BeanDefinition
 		parserContext.registerBeanComponent(new BeanComponentDefinition(def,
 				TransactionManagementConfigUtils.TRANSACTIONAL_EVENT_LISTENER_FACTORY_BEAN_NAME));
 	}
@@ -122,6 +124,7 @@ class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParser {
 			AopNamespaceUtils.registerAutoProxyCreatorIfNecessary(parserContext, element);
 
 			String txAdvisorBeanName = TransactionManagementConfigUtils.TRANSACTION_ADVISOR_BEAN_NAME;
+			// beanDefinition  internalTransactionAdvisor
 			if (!parserContext.getRegistry().containsBeanDefinition(txAdvisorBeanName)) {
 				Object eleSource = parserContext.extractSource(element);
 
