@@ -52,8 +52,9 @@ public class TxNamespaceHandler extends NamespaceHandlerSupport {
 
 	@Override
 	public void init() {
-		// 事务namespace 处理器，注册对应的BeanDefinitionParser
+		// 事务namespace处理器注册对应的BeanDefinition解析  解析xml配置事务
 		registerBeanDefinitionParser("advice", new TxAdviceBeanDefinitionParser());
+		// 注册注解事务beanDefinition解析器 解析注解配置事务
 		registerBeanDefinitionParser("annotation-driven", new AnnotationDrivenBeanDefinitionParser());
 		registerBeanDefinitionParser("jta-transaction-manager", new JtaTransactionManagerBeanDefinitionParser());
 	}

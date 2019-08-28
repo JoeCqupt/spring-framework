@@ -305,7 +305,7 @@ class CglibAopProxy implements AopProxy, Serializable {
 		// unadvised calls to static targets that cannot return this).
 		Callback targetDispatcher = (isStatic ?
 				new StaticDispatcher(this.advised.getTargetSource().getTarget()) : new SerializableNoOp());
-
+		// cglib代理对象中 中主要涉及的 callbacks
 		Callback[] mainCallbacks = new Callback[] {
 				aopInterceptor,  // for normal advice
 				targetInterceptor,  // invoke target without considering advice, if optimized
@@ -813,6 +813,7 @@ class CglibAopProxy implements AopProxy, Serializable {
 		 */
 		@Override
 		public int accept(Method method) {
+			// final 方法不能代理
 			if (AopUtils.isFinalizeMethod(method)) {
 				logger.trace("Found finalize() method - using NO_OVERRIDE");
 				return NO_OVERRIDE;
