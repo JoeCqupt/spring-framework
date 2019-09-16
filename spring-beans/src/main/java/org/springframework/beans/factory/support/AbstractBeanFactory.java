@@ -268,6 +268,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 
 			// Check if bean definition exists in this factory.
 			BeanFactory parentBeanFactory = getParentBeanFactory();
+			// 如果 父BeanFactory不为空，并且当前 BeanFactory又不包含此BeanDefinition
 			if (parentBeanFactory != null && !containsBeanDefinition(beanName)) {
 				// Not found -> check parent.
 				String nameToLookup = originalBeanName(name);
@@ -290,26 +291,33 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			}
 
 			if (!typeCheckOnly) {
-				// 标记这个bean 正在创建
+				// 标记这个bean 正在创建   alreadyCreated 中添加此beanName
 				// 同时移除 mergedBeanDefinitions 中的该bean的RootBeanDefinition
+				// 因为要去创建bean，所以要重新去merge一次beanDefinition  fixme
 				markBeanAsCreated(beanName);
 			}
 
 			try {
 				// 重新生成在mergedBeanDefinitions 中该bean的RootBeanDefinition
 				final RootBeanDefinition mbd = getMergedLocalBeanDefinition(beanName);
+				// 检查merge 之后的的 BeanDefinition    判断是否是抽象类
 				checkMergedBeanDefinition(mbd, beanName, args);
 
 				// Guarantee initialization of beans that the current bean depends on.
 				String[] dependsOn = mbd.getDependsOn();
 				if (dependsOn != null) {
 					for (String dep : dependsOn) {
+						// 判断是否有 循环'依赖' depends-on  见 310行
 						if (isDependent(beanName, dep)) {
 							throw new BeanCreationException(mbd.getResourceDescription(), beanName,
 									"Circular depends-on relationship between '" + beanName + "' and '" + dep + "'");
 						}
+						// 注册进入 依赖bean信息  dependentBeanMap  dependenciesForBeanMap
+						// 请注意这里   这里注册的顺序表明的意思是 ： dep  - list{beanName}
+						// 所以前面才能 通过这个map 来判断循环依赖
 						registerDependentBean(dep, beanName);
 						try {
+							// 递归获取beanName
 							getBean(dep);
 						}
 						catch (NoSuchBeanDefinitionException ex) {
@@ -1275,6 +1283,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			}
 
 			if (mbd == null) {
+				// 如果 BeanDefinition 不存在parentName
 				if (bd.getParentName() == null) {
 					// Use copy of given root bean definition.
 					if (bd instanceof RootBeanDefinition) {
@@ -1290,9 +1299,11 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 					try {
 						String parentBeanName = transformedBeanName(bd.getParentName());
 						if (!beanName.equals(parentBeanName)) {
+							// 如果父 bean的beanName 和当前beanName 不相等
 							pbd = getMergedBeanDefinition(parentBeanName);
 						}
 						else {
+							// 如果父 bean的beanName 和当前beanName 相等
 							BeanFactory parent = getParentBeanFactory();
 							if (parent instanceof ConfigurableBeanFactory) {
 								pbd = ((ConfigurableBeanFactory) parent).getMergedBeanDefinition(parentBeanName);
@@ -1310,10 +1321,12 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 					}
 					// Deep copy with overridden values.
 					mbd = new RootBeanDefinition(pbd);
+					// 设置 overrideFrom 属性
 					mbd.overrideFrom(bd);
 				}
 
 				// Set default singleton scope, if not configured before.
+				// 默认 是单例 bean
 				if (!StringUtils.hasLength(mbd.getScope())) {
 					mbd.setScope(RootBeanDefinition.SCOPE_SINGLETON);
 				}
@@ -1329,6 +1342,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 				// Cache the merged bean definition for the time being
 				// (it might still get re-merged later on in order to pick up metadata changes)
 				if (containingBd == null && isCacheBeanMetadata()) {
+					// 缓存merge过后的 BeanDefinition
 					this.mergedBeanDefinitions.put(beanName, mbd);
 				}
 			}
@@ -1672,12 +1686,15 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		// Now we have the bean instance, which may be a normal bean or a FactoryBean.
 		// If it's a FactoryBean, we use it to create a bean instance, unless the
 		// caller actually wants a reference to the factory.
+		// 如果不是 FactoryBean 的话就直接返回
 		if (!(beanInstance instanceof FactoryBean) || BeanFactoryUtils.isFactoryDereference(name)) {
 			return beanInstance;
 		}
 
+		// 下面的处理应该是 FactoryBean 的处理方式 //todo
 		Object object = null;
 		if (mbd == null) {
+			// 先拿一下缓存
 			object = getCachedObjectForFactoryBean(beanName);
 		}
 		if (object == null) {
