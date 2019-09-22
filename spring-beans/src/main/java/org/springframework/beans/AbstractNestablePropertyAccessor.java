@@ -272,9 +272,11 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
 
 	protected void setPropertyValue(PropertyTokenHolder tokens, PropertyValue pv) throws BeansException {
 		if (tokens.keys != null) {
+			// 如果是 嵌套的属性
 			processKeyedProperty(tokens, pv);
 		}
 		else {
+			// 非嵌套属性 设置方法
 			processLocalProperty(tokens, pv);
 		}
 	}
@@ -455,6 +457,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
 				}
 				pv.getOriginalPropertyValue().conversionNecessary = (valueToApply != originalValue);
 			}
+			// 真正的给属性设置上了值
 			ph.setValue(valueToApply);
 		}
 		catch (TypeMismatchException ex) {

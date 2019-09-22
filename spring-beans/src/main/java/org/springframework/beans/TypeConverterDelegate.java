@@ -157,6 +157,8 @@ class TypeConverterDelegate {
 
 		boolean standardConversion = false;
 
+
+		// 会对解析后的值进行 转换处理
 		if (requiredType != null) {
 			// Try to apply some standard type conversion rules if appropriate.
 
