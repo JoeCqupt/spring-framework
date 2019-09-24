@@ -503,6 +503,7 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
 		if (StringUtils.hasLength(element.mappedName)) {
 			return this.jndiFactory.getBean(element.mappedName, element.lookupType);
 		}
+		// todo  jndi 查找
 		if (this.alwaysUseJndiLookup) {
 			return this.jndiFactory.getBean(element.name, element.lookupType);
 		}

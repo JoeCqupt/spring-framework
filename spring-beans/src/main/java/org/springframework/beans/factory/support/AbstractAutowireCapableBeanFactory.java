@@ -573,7 +573,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			if (!mbd.postProcessed) {
 				try {
 					// 给PostProcessors (MergedBeanDefinitionPostProcessor类型)一个机会去修改 RootBeanDefinition
-					// @Autowired的功能就是在 这里实现的 // todo 待解析
+					// @Autowired 、 @Resource 的功能就是在 这里实现的 // todo 待解析
 					applyMergedBeanDefinitionPostProcessors(mbd, beanType, beanName);
 				}
 				catch (Throwable ex) {
@@ -1447,7 +1447,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 				if (bp instanceof InstantiationAwareBeanPostProcessor) {
 					InstantiationAwareBeanPostProcessor ibp = (InstantiationAwareBeanPostProcessor) bp;
 					// 让实例化感知处理器 去处理  PropertyValues
-					// todo @autowire @resource 就是在这里实现的
+					// @autowire @resource 就是在这里实现的
+					// 这里 实现了对  @autowire @resource 等注解的值的设置操作
 					PropertyValues pvsToUse = ibp.postProcessProperties(pvs, bw.getWrappedInstance(), beanName);
 					if (pvsToUse == null) {
 						// 意思是如果上面的方法没有办法给这个属性设置的话 那么试试下面这个方法
@@ -1832,6 +1833,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		if (mbd == null || !mbd.isSynthetic()) {
 			// BeanProcesser 执行postProcessBeforeInitialization  初始化前处理区
 			// 初始化servletContext 等功能处理器
+			// 这里的 @PostConstruct 会去执行  详情请看 CommonAnnotationBeanPostProcessor
 			wrappedBean = applyBeanPostProcessorsBeforeInitialization(wrappedBean, beanName);
 		}
 

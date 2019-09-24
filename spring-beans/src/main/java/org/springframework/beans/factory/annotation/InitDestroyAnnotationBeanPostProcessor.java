@@ -228,7 +228,7 @@ public class InitDestroyAnnotationBeanPostProcessor
 		do {
 			final List<LifecycleElement> currInitMethods = new ArrayList<>();
 			final List<LifecycleElement> currDestroyMethods = new ArrayList<>();
-
+			//   @PostConstruct  @PreDestroy 处理
 			ReflectionUtils.doWithLocalMethods(targetClass, method -> {
 				if (this.initAnnotationType != null && method.isAnnotationPresent(this.initAnnotationType)) {
 					LifecycleElement element = new LifecycleElement(method);
